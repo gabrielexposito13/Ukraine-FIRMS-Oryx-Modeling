@@ -21,6 +21,7 @@ library(writexl)
 library(maps)
 library(lubridate)
 
+# You must set up a working directory. 
 
 #### FIRMS Codebook can be found here: 
 # https://appliedsciences.nasa.gov/sites/default/files/2020-11/WildlandFire_NRTa.pdf
