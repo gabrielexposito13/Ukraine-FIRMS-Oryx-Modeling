@@ -35,7 +35,7 @@ firms_ukraine <- firms %>% filter(latitude < 52.389 & latitude > 44.159 &
 
 firms_kharkiv <- firms %>% filter(latitude > 49.6561 & latitude < 50.4619 &
                                     longitude > 35.3787 & longitude < 37.5348)
-firms_donbass <- firms %>% filter(latitude > 47.8039 & latitude < 49.4628 &
+firms_donbas <- firms %>% filter(latitude > 47.8039 & latitude < 49.4628 &
                                     longitude > 36.2357 & longitude < 40.5478)
 firms_mariupol <- firms %>% filter(latitude > 46.9503 & latitude < 47.8002 &
                                      longitude > 36.3304 & longitude < 38.4865)
@@ -44,7 +44,7 @@ firms_kherson <- firms %>% filter(latitude > 45.8900 & latitude < 47.6099 &
 firms_sumy_chernihiv <- firms %>% filter(latitude > 50.6843 & latitude < 52.2480 &
                                            longitude > 31.0226 & longitude < 35.3348)
 
-firms_ukraine <- rbind(firms_kyiv, firms_donbass, firms_kharkiv, 
+firms_ukraine <- rbind(firms_kyiv, firms_donbas, firms_kharkiv, 
                            firms_mariupol, firms_kherson, firms_sumy_chernihiv)
 
 
@@ -76,7 +76,7 @@ ggmap(ukraine_map)+
 
 theater_intensity <- data.frame(
   kyiv = c(firms_kyiv %>% summarise(kyiv=n())),
-  donbass = c(firms_donbass %>% summarise(donbass=n())),
+  donbas = c(firms_donbas %>% summarise(donbas=n())),
   kharkiv = c(firms_kharkiv %>% summarise(kharkiv=n())),
   kherson = c(firms_kherson %>% summarise(kherson=n())),
   mariupol = c(firms_mariupol %>% summarise(mariupol=n())),
@@ -95,7 +95,7 @@ kherson_1 <- firms_kherson %>%
   summarise(daily_fires = n()) %>% 
   mutate(Freq = round(daily_fires / sum(daily_fires),5))
 
-donbass_1 <- firms_donbass %>% 
+donbas_1 <- firms_donbas %>% 
   group_by(acq_date) %>% 
   summarise(daily_fires = n()) %>% 
   mutate(Freq = round(daily_fires / sum(daily_fires),5))
@@ -120,8 +120,8 @@ kyiv_kherson <- left_join(kyiv_1, kherson_1, by = "acq_date") %>% rename(daily_f
                                                                          frequency_kyiv = Freq.x,
                                                                          daily_fires_kherson = daily_fires.y,
                                                                          frequency_kherson = Freq.y)
-donbass_mariupol <- left_join(donbass_1, mariupol_1, by = "acq_date") %>% rename(daily_fires_donbass = daily_fires.x,
-                                                                                 frequency_donbass = Freq.x,
+donbas_mariupol <- left_join(donbas_1, mariupol_1, by = "acq_date") %>% rename(daily_fires_donbas = daily_fires.x,
+                                                                                 frequency_donbas = Freq.x,
                                                                                  daily_fires_mariupol = daily_fires.y,
                                                                                  frequency_mariupol = Freq.y)
 sumy_chernihiv_kharkiv <- left_join(sumy_chernihiv_1, kharkiv_1, by = "acq_date") %>% 
@@ -130,19 +130,19 @@ sumy_chernihiv_kharkiv <- left_join(sumy_chernihiv_1, kharkiv_1, by = "acq_date"
          daily_fires_kharkiv = daily_fires.y,
          frequency_kharkiv = Freq.y)
 
-ukraine_firms_1 <- left_join(kyiv_kherson, donbass_mariupol, by = "acq_date")
+ukraine_firms_1 <- left_join(kyiv_kherson, donbas_mariupol, by = "acq_date")
 ukraine_firms_2 <- left_join(ukraine_firms_1, sumy_chernihiv_kharkiv, by = "acq_date")
 
 ukraine_firms_2$daily_fires_kyiv <- as.numeric(ukraine_firms_2$daily_fires_kyiv)
 ukraine_firms_2$daily_fires_kherson <- as.numeric(ukraine_firms_2$daily_fires_kherson)
-ukraine_firms_2$daily_fires_donbass <- as.numeric(ukraine_firms_2$daily_fires_donbass)
+ukraine_firms_2$daily_fires_donbas <- as.numeric(ukraine_firms_2$daily_fires_donbas)
 ukraine_firms_2$daily_fires_mariupol <- as.numeric(ukraine_firms_2$daily_fires_mariupol)
 ukraine_firms_2$daily_fires_sumy_chernihiv <- as.numeric(ukraine_firms_2$daily_fires_sumy_chernihiv)
 ukraine_firms_2$daily_fires_kharkiv <- as.numeric(ukraine_firms_2$daily_fires_kharkiv)
 
 
 ukraine_firms_3 <- ukraine_firms_2 %>% group_by(acq_date) %>% 
-  mutate(ua_daily_fires = sum(daily_fires_kyiv, daily_fires_kherson, daily_fires_donbass, daily_fires_mariupol,
+  mutate(ua_daily_fires = sum(daily_fires_kyiv, daily_fires_kherson, daily_fires_donbas, daily_fires_mariupol,
                               daily_fires_sumy_chernihiv, daily_fires_kharkiv, na.rm=TRUE))
 
 ggplot(ukraine_firms_3, aes(acq_date, ua_daily_fires)) + geom_point() +geom_smooth(se = F)
@@ -150,7 +150,7 @@ ggplot(ukraine_firms_3, aes(acq_date, ua_daily_fires)) + geom_point() +geom_smoo
 model1 <- lm(daily_fires_kyiv ~ daily_fires_mariupol, ukraine_firms_3)
 model2 <- lm(daily_fires_kyiv ~ daily_fires_sumy_chernihiv, ukraine_firms_3)
 model3 <- lm(daily_fires_kyiv ~ daily_fires_kharkiv, ukraine_firms_3)
-model4 <- lm(daily_fires_kyiv ~ daily_fires_donbass, ukraine_firms_3)
+model4 <- lm(daily_fires_kyiv ~ daily_fires_donbas, ukraine_firms_3)
 model5 <- lm(daily_fires_kyiv ~ daily_fires_kherson, ukraine_firms_3)
 
 models <- list(model1, model2, model3, model4, model5)
@@ -171,7 +171,7 @@ firms_kyiv_2021 <- firms_2021 %>% filter(latitude > 49.737 & latitude < 52.107 &
 firms_kharkiv_2021 <- firms_2021 %>% filter(latitude > 49.6561 & latitude < 50.4619 &
                                     longitude > 35.3787 & longitude < 37.5348)
 
-firms_donbass_2021 <- firms_2021 %>% filter(latitude > 47.8039 & latitude < 49.4628 &
+firms_donbas_2021 <- firms_2021 %>% filter(latitude > 47.8039 & latitude < 49.4628 &
                                     longitude > 36.2357 & longitude < 40.5478)
 
 firms_mariupol_2021 <- firms_2021 %>% filter(latitude > 46.9503 & latitude < 47.8002 &
@@ -183,7 +183,7 @@ firms_kherson_2021 <- firms_2021 %>% filter(latitude > 45.8900 & latitude < 47.6
 firms_sumy_chernihiv_2021 <- firms_2021 %>% filter(latitude > 50.6843 & latitude < 52.2480 &
                                            longitude > 31.0226 & longitude < 35.3348)
 
-firms_ukraine_2021 <- rbind(firms_kyiv_2021, firms_kharkiv_2021, firms_donbass_2021, 
+firms_ukraine_2021 <- rbind(firms_kyiv_2021, firms_kharkiv_2021, firms_donbas_2021, 
                             firms_mariupol_2021, firms_kherson_2021, firms_sumy_chernihiv_2021)
 
 ggmap(ukraine_map)+
@@ -251,9 +251,9 @@ kherson_1 <- kherson_1 %>% rename(Date = acq_date)
 kherson_1 <- kherson_1 %>% rename(kherson_daily_fires = daily_fires)
 kherson_1 <- kherson_1 %>% select(Date, kherson_daily_fires)
 
-donbass_1 <- donbass_1 %>% rename(Date = acq_date)
-donbass_1 <- donbass_1 %>% rename(donbass_daily_fires = daily_fires)
-donbass_1 <- donbass_1 %>% select(Date, donbass_daily_fires)
+donbas_1 <- donbas_1 %>% rename(Date = acq_date)
+donbas_1 <- donbas_1 %>% rename(donbas_daily_fires = daily_fires)
+donbas_1 <- donbas_1 %>% select(Date, donbas_daily_fires)
 
 mariupol_1 <- mariupol_1 %>% rename(Date = acq_date)
 mariupol_1 <- mariupol_1 %>% rename(mariupol_daily_fires = daily_fires)
@@ -270,7 +270,7 @@ kharkiv_1 <- kharkiv_1 %>% select(Date, khrakiv_daily_fires)
 ## Joining Data
 final_stats <- left_join(russian_losses5, kyiv_1, by= 'Date')
 final_stats2 <- left_join(final_stats, kherson_1, by= "Date")
-final_stats3 <- left_join(final_stats2, donbass_1, by= "Date")
+final_stats3 <- left_join(final_stats2, donbas_1, by= "Date")
 final_stats4 <- left_join(final_stats3, mariupol_1, by= "Date")
 final_stats5 <- left_join(final_stats4, sumy_chernihiv_1, by= "Date")
 final_stats6 <- left_join(final_stats5, kharkiv_1, by= "Date")
